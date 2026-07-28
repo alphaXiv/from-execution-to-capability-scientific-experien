@@ -23,7 +23,7 @@ python3 -m pip install -q -e /tmp/SciCode
 mkdir -p /tmp/scicode-data
 if [[ ! -f /tmp/scicode-data/test_data.h5 ]]; then
   gdown --folder "https://drive.google.com/drive/folders/1W5GZW6_bdiDAiipuFMqdUhvUaHIj6-pR" \
-    -O /tmp/scicode-data --remaining-ok
+    -O /tmp/scicode-data
 fi
 test_h5=$(find /tmp/scicode-data -type f -name 'test_data.h5' -print -quit)
 if [[ -z "${test_h5}" ]]; then
