@@ -1,8 +1,8 @@
 {
   "condition": "runtime_eval",
-  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
-  "model_role": "weaker",
-  "runtime_procedure": false,
+  "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
+  "model_role": "stronger",
+  "runtime_procedure": true,
   "seed": 42,
   "n_problems": 12,
   "max_new_tokens": 1024,
