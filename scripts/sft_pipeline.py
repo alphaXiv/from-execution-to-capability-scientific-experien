@@ -29,6 +29,35 @@ def load_file(name: str) -> list[dict]:
 
 def teacher_examples(config: dict, test_h5: str) -> list[dict]:
     records = sorted(load_file("problems_dev.jsonl"), key=lambda x: int(x["problem_id"]))
+    if config.get("gold_supervision"):
+        retained = []
+        for record in records:
+            prior_gold = []
+            for step_idx, step in enumerate(record["sub_steps"]):
+                if (record["problem_id"], step_idx) not in SKIPS:
+                    retained.append(
+                        {
+                            "step": step["step_number"],
+                            "prompt": prompt_for(record, step_idx, prior_gold, False),
+                            "response": step["ground_truth_code"],
+                        }
+                    )
+                prior_gold.append(step["ground_truth_code"])
+        retained = retained[: config["max_train_examples"]]
+        print(
+            "TEACHER_SUMMARY_JSON="
+            + json.dumps(
+                {
+                    "candidate_steps": sum(len(r["sub_steps"]) for r in records),
+                    "passing_steps": len(retained),
+                    "retained_steps": len(retained),
+                    "gold_supervision": True,
+                },
+                sort_keys=True,
+            ),
+            flush=True,
+        )
+        return retained
     llm = LLM(
         model=config["teacher_model"],
         tensor_parallel_size=1,
@@ -169,7 +198,11 @@ def evaluate_adapter(config: dict, adapter_path: str, test_h5: str) -> dict:
     passed = sum(sum(x) for x in results.values())
     main_passed = sum(bool(x) and all(x) for x in results.values())
     return {
-        "condition": "procedure_guided_sft" if config["teacher_procedure"] else "no_procedure_sft",
+        "condition": (
+            "gold_sft"
+            if config.get("gold_supervision")
+            else ("procedure_guided_sft" if config["teacher_procedure"] else "no_procedure_sft")
+        ),
         "teacher_procedure": config["teacher_procedure"],
         "substep_passed": passed,
         "substep_total": total,
