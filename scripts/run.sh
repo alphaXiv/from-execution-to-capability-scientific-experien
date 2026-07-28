@@ -10,7 +10,7 @@ echo "SCICONSOLIDATE_REPRO_START=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo "GIT_COMMIT=$(git rev-parse HEAD)"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 
-python -m pip install -q \
+python3 -m pip install -q \
   "datasets>=3.6,<4" \
   "gdown>=5.2" "hf_transfer>=0.1.9" "h5py>=3.11" \
   "numpy>=1.26" "scipy>=1.13" "sympy>=1.13" "matplotlib>=3.9"
@@ -18,7 +18,7 @@ python -m pip install -q \
 if [[ ! -d /tmp/SciCode/.git ]]; then
   git clone --depth 1 https://github.com/scicode-bench/SciCode.git /tmp/SciCode
 fi
-python -m pip install -q -e /tmp/SciCode
+python3 -m pip install -q -e /tmp/SciCode
 
 mkdir -p /tmp/scicode-data
 if [[ ! -f /tmp/scicode-data/test_data.h5 ]]; then
@@ -31,7 +31,7 @@ if [[ -z "${test_h5}" ]]; then
   exit 2
 fi
 
-python scripts/scicode_repro.py \
+python3 scripts/scicode_repro.py \
   --config experiment.json \
   --test-h5 "$test_h5"
 

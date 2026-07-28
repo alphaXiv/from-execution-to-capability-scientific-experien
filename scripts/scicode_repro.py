@@ -124,7 +124,7 @@ def score_step(record: dict, step_idx: int, all_code: list[str], test_h5: str) -
         env["MPLBACKEND"] = "Agg"
         try:
             result = subprocess.run(
-                ["python", str(path)],
+                ["python3", str(path)],
                 text=True,
                 capture_output=True,
                 timeout=180,
