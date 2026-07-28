@@ -153,7 +153,10 @@ def main() -> None:
     started = time.time()
 
     print("CONFIG_JSON=" + json.dumps(config, sort_keys=True), flush=True)
-    records = select_stratified(load_records(), config["n_problems"])
+    available = load_records()
+    if config.get("max_steps"):
+        available = [r for r in available if len(r["sub_steps"]) <= config["max_steps"]]
+    records = select_stratified(available, config["n_problems"])
     subset = [
         {
             "problem_id": r["problem_id"],
