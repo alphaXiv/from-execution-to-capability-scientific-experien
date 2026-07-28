@@ -12,8 +12,9 @@ from pathlib import Path
 
 import torch
 from datasets import load_dataset
+from peft import PeftModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from vllm import LLM, SamplingParams
-from vllm.lora.request import LoRARequest
 
 from scicode_repro import extract_code, prompt_for, score_step, select_stratified
 
@@ -109,20 +110,13 @@ def teacher_examples(config: dict, test_h5: str) -> list[dict]:
 
 def evaluate_adapter(config: dict, adapter_path: str, test_h5: str) -> dict:
     records = select_stratified(load_file("problems_test.jsonl"), config["n_problems"])
-    llm = LLM(
-        model=config["model"],
-        tensor_parallel_size=1,
-        dtype="bfloat16",
-        trust_remote_code=True,
-        max_model_len=16384,
-        gpu_memory_utilization=0.90,
-        seed=config["seed"],
-        enable_lora=True,
-        max_lora_rank=config["lora_rank"],
-    )
-    tokenizer = llm.get_tokenizer()
-    sampling = SamplingParams(temperature=0.0, max_tokens=config["max_new_tokens"], seed=config["seed"])
-    request = LoRARequest("consolidated", 1, adapter_path)
+    tokenizer = AutoTokenizer.from_pretrained(config["model"], trust_remote_code=True)
+    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "left"
+    base = AutoModelForCausalLM.from_pretrained(
+        config["model"], torch_dtype=torch.bfloat16, trust_remote_code=True
+    ).to("cuda:0")
+    model = PeftModel.from_pretrained(base, adapter_path).eval()
     codes = {r["problem_id"]: [] for r in records}
     results = {r["problem_id"]: [] for r in records}
     for step_idx in range(max(len(r["sub_steps"]) for r in records)):
@@ -138,9 +132,23 @@ def evaluate_adapter(config: dict, adapter_path: str, test_h5: str) -> dict:
             )
             for r in active
         ]
-        outputs = llm.generate(prompts, sampling, lora_request=request, use_tqdm=True)
-        for record, output in zip(active, outputs):
-            code = extract_code(output.outputs[0].text)
+        texts = []
+        for start in range(0, len(prompts), 4):
+            chunk = prompts[start : start + 4]
+            encoded = tokenizer(
+                chunk, return_tensors="pt", padding=True, truncation=True, max_length=14336
+            ).to("cuda:0")
+            with torch.inference_mode():
+                generated = model.generate(
+                    **encoded,
+                    do_sample=False,
+                    max_new_tokens=config["max_new_tokens"],
+                    pad_token_id=tokenizer.eos_token_id,
+                )
+            new_tokens = generated[:, encoded["input_ids"].shape[1] :]
+            texts.extend(tokenizer.batch_decode(new_tokens, skip_special_tokens=True))
+        for record, text in zip(active, texts):
+            code = extract_code(text)
             codes[record["problem_id"]].append(code)
             ok, detail = score_step(record, step_idx, codes[record["problem_id"]], test_h5)
             results[record["problem_id"]].append(ok)
