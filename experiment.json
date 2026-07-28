@@ -2,7 +2,7 @@
   "condition": "runtime_eval",
   "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
   "model_role": "weaker",
-  "runtime_procedure": false,
+  "runtime_procedure": true,
   "seed": 42,
   "n_problems": 16,
   "max_steps": 4,
