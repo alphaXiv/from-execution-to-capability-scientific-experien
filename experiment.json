@@ -1,10 +1,15 @@
 {
-  "condition": "runtime_eval",
+  "condition": "sft",
   "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
-  "model_role": "weaker",
-  "runtime_procedure": true,
+  "teacher_model": "Qwen/Qwen2.5-Coder-32B-Instruct",
+  "model_role": "student",
+  "teacher_procedure": true,
   "seed": 42,
   "n_problems": 12,
   "max_new_tokens": 1024,
-  "temperature": 0.0
+  "temperature": 0.0,
+  "max_train_examples": 16,
+  "lora_rank": 16,
+  "learning_rate": 0.0002,
+  "epochs": 1
 }
