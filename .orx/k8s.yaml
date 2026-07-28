@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sciconsolidate-{{ORX_RUN}}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 21600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: run
+          image: vllm/vllm-openai:v0.9.2
+          command: ["bash", "-c", "eval \"$ORX_SCRIPT\""]
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+          resources:
+            requests:
+              nvidia.com/gpu: "4"
+              cpu: "24"
+              memory: "128Gi"
+            limits:
+              nvidia.com/gpu: "4"
+              memory: "192Gi"
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Gi

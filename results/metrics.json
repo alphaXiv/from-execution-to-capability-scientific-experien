@@ -1,0 +1,46 @@
+{
+  "paper": {
+    "runtime_delta_substep_pp": {"weaker": -0.30, "stronger": 3.85},
+    "runtime_delta_main_pp": {"weaker": 0.00, "stronger": 6.26},
+    "guided_sft_delta_substep_pp": 3.89,
+    "guided_sft_delta_main_pp": 6.25
+  },
+  "runtime_primary_12_problems_53_substeps": {
+    "7B": {
+      "baseline": {"substep_passed": 5, "main_passed": 0},
+      "targeted": {"substep_passed": 4, "main_passed": 0},
+      "generic": {"substep_passed": 5, "main_passed": 0}
+    },
+    "14B": {
+      "baseline": {"substep_passed": 15, "main_passed": 3},
+      "targeted": {"substep_passed": 10, "main_passed": 2},
+      "generic": {"substep_passed": 16, "main_passed": 3}
+    },
+    "32B": {
+      "baseline": {"substep_passed": 11, "main_passed": 1},
+      "targeted": {"substep_passed": 10, "main_passed": 1},
+      "generic": {"substep_passed": 15, "main_passed": 2}
+    }
+  },
+  "adapter_exact_8_examples_12_problems_53_substeps": {
+    "seed_42": {"guided_substeps": 3, "control_substeps": 4, "guided_main": 0, "control_main": 1},
+    "seed_7": {"guided_substeps": 5, "control_substeps": 3, "guided_main": 1, "control_main": 0},
+    "seed_123": {"guided_substeps": 4, "control_substeps": 7, "guided_main": 0, "control_main": 1}
+  },
+  "diagnostics": {
+    "low_rate_guided_substeps": 4,
+    "low_rate_control_substeps": 4,
+    "gold_substeps_lr_2e4": 3,
+    "gold_substeps_lr_5e5": 3,
+    "teacher_verified_guided": 8,
+    "teacher_verified_control": 27,
+    "teacher_candidates": 50
+  },
+  "compute": {
+    "backend": "kubernetes",
+    "gpu_model": "NVIDIA RTX PRO 6000 Blackwell",
+    "peak_concurrent_gpu_count": 16,
+    "active_gpu_per_job_after_stabilization": 1,
+    "wall_hours_first_submit_to_final_result": 3.01
+  }
+}
