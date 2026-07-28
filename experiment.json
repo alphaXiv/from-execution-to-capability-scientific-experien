@@ -1,7 +1,7 @@
 {
   "condition": "runtime_eval",
-  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
-  "model_role": "weaker",
+  "model": "Qwen/Qwen2.5-Coder-32B-Instruct",
+  "model_role": "stronger",
   "runtime_procedure": false,
   "seed": 42,
   "n_problems": 12,
