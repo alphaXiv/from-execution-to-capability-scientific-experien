@@ -4,7 +4,7 @@
   "teacher_model": "Qwen/Qwen2.5-Coder-32B-Instruct",
   "model_role": "student",
   "teacher_procedure": false,
-  "seed": 42,
+  "seed": 7,
   "n_problems": 12,
   "max_new_tokens": 1024,
   "temperature": 0.0,
