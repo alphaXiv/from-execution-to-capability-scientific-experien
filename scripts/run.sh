@@ -4,6 +4,7 @@ set -euo pipefail
 run_start=$(date +%s)
 export PIP_DISABLE_PIP_VERSION_CHECK=1
 export HF_HUB_ENABLE_HF_TRANSFER=1
+export HF_HUB_DISABLE_XET=1
 export TOKENIZERS_PARALLELISM=false
 export NCCL_P2P_DISABLE=1
 export NCCL_IB_DISABLE=1
