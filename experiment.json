@@ -4,7 +4,8 @@
   "model_role": "weaker",
   "runtime_procedure": false,
   "seed": 42,
-  "n_problems": 12,
+  "n_problems": 16,
+  "max_steps": 4,
   "max_new_tokens": 1024,
   "temperature": 0.0
 }
