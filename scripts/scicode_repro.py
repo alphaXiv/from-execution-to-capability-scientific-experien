@@ -49,9 +49,16 @@ def load_records() -> list[dict]:
 
 
 def select_stratified(records: list[dict], n: int) -> list[dict]:
+    # The public JSON release omits the paper's private domain/task-type labels.
+    # Use two public attributes instead: benchmark-position quartile and chain length.
+    ordered = sorted(records, key=lambda x: int(x["problem_id"]))
+    rank = {r["problem_id"]: i for i, r in enumerate(ordered)}
     groups: dict[tuple[str, str], list[dict]] = defaultdict(list)
-    for record in records:
-        groups[(record.get("domain", "unknown"), record.get("task_type", "unknown"))].append(record)
+    for record in ordered:
+        quartile = min(3, 4 * rank[record["problem_id"]] // len(ordered))
+        steps = len(record["sub_steps"])
+        complexity = "single" if steps == 1 else ("short" if steps <= 4 else "long")
+        groups[(f"id_q{quartile + 1}", complexity)].append(record)
     for values in groups.values():
         values.sort(key=lambda x: int(x["problem_id"]))
     keys = sorted(groups)
@@ -150,8 +157,8 @@ def main() -> None:
     subset = [
         {
             "problem_id": r["problem_id"],
-            "domain": r.get("domain"),
-            "task_type": r.get("task_type"),
+            "id_quartile": f"q{min(4, 1 + 4 * sorted(int(x['problem_id']) for x in records).index(int(r['problem_id'])) // len(records))}",
+            "complexity": "single" if len(r["sub_steps"]) == 1 else ("short" if len(r["sub_steps"]) <= 4 else "long"),
             "steps": len(r["sub_steps"]),
         }
         for r in records
@@ -160,7 +167,7 @@ def main() -> None:
 
     llm = LLM(
         model=config["model"],
-        tensor_parallel_size=4,
+        tensor_parallel_size=1,
         dtype="bfloat16",
         trust_remote_code=True,
         max_model_len=16384,
@@ -229,7 +236,8 @@ def main() -> None:
         "substep_total": total_steps,
         "substep_accuracy": passed_steps / total_steps,
         "elapsed_seconds": time.time() - started,
-        "gpu_count": 4,
+        "allocated_gpu_count": 4,
+        "active_inference_gpu_count": 1,
         "gpu_model": "NVIDIA RTX PRO 6000 Blackwell",
     }
     print("FINAL_METRICS_JSON=" + json.dumps(summary, sort_keys=True), flush=True)
