@@ -19,25 +19,21 @@ from vllm import LLM, SamplingParams
 
 
 PROCEDURE_BUNDLE = r"""
-Reusable scientific-computing procedure
+General code-quality reminder
 
-1. Interface audit. Before calling a helper, verify that it is defined, imported, or
-passed in; check argument count/order and avoid shadowing a function with a variable.
-Return exactly the requested type and shape.
+Write readable Python with descriptive local names and conventional formatting.
+Prefer a simple implementation over unnecessary abstraction. Keep related statements
+together, avoid excessive comments, and use standard library or widely used package
+features when appropriate. Consider clarity, maintainability, and ordinary edge cases.
 
-2. Array and numerical audit. Before combining arrays, state the intended axes and
-make ambiguous broadcasting explicit with reshape/newaxis. Use indexing='ij' when
-meshgrid inputs map in order to output axes. Check reduction axes, dtype, units, and
-boundary cases; use stable algebra and tolerances rather than fragile exact equality.
+Organize the implementation so another programmer could review it easily. Do not add
+unrequested prose, demonstrations, benchmarks, logging, command-line interfaces, or
+new public functions. Avoid clever tricks that obscure intent. Follow the supplied
+function signature and return an answer in one Python code block.
 
-3. Dependency-flow audit. Treat each earlier function as a tested contract. Before
-writing the current function, identify which earlier outputs feed which current
-inputs. Preserve state updates in their specified order; do not silently recompute,
-drop, or overwrite an intermediate. Add compact assertions for critical shapes and
-finite values, then remove any debugging output from the final answer.
-
-Apply only relevant clauses. These are decision rules, not substitutes for deriving
-the task-specific formula. Output only executable Python in one code block.
+This reminder intentionally contains no scientific-computing decision rules, no array
+axis guidance, no numerical-stability guidance, and no dependency-flow procedure. It
+serves only as a prompt-length and generic-carefulness control.
 """.strip()
 
 SKIPS = {("13", 5), ("62", 0), ("76", 2)}
