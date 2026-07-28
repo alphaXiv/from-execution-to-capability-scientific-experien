@@ -4,6 +4,7 @@ set -euo pipefail
 run_start=$(date +%s)
 export PIP_DISABLE_PIP_VERSION_CHECK=1
 export HF_HUB_ENABLE_HF_TRANSFER=1
+export HF_HUB_DISABLE_XET=1
 export TOKENIZERS_PARALLELISM=false
 
 echo "SCICONSOLIDATE_REPRO_START=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
