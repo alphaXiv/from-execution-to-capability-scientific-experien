@@ -48,7 +48,9 @@ def main() -> None:
             task_type="CAUSAL_LM",
         ),
     )
-    model = DDP(model, device_ids=[local_rank], find_unused_parameters=False)
+    world_size = dist.get_world_size()
+    if world_size > 1:
+        model = DDP(model, device_ids=[local_rank], find_unused_parameters=False)
 
     encoded = []
     for example in examples:
@@ -100,7 +102,8 @@ def main() -> None:
             step += 1
     dist.barrier()
     if rank == 0:
-        model.module.save_pretrained(args.output)
+        unwrapped = model.module if isinstance(model, DDP) else model
+        unwrapped.save_pretrained(args.output)
         tokenizer.save_pretrained(args.output)
         print(
             "TRAIN_SUMMARY_JSON="
@@ -111,7 +114,7 @@ def main() -> None:
                     "steps_per_rank": step,
                     "elapsed_seconds": time.time() - started,
                     "lora_rank": config["lora_rank"],
-                    "world_size": dist.get_world_size(),
+                    "world_size": world_size,
                 },
                 sort_keys=True,
             ),
