@@ -11,7 +11,7 @@ echo "GIT_COMMIT=$(git rev-parse HEAD)"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader
 
 python -m pip install -q \
-  "vllm==0.9.2" "transformers>=4.52,<4.54" "datasets>=3.6,<4" \
+  "datasets>=3.6,<4" \
   "gdown>=5.2" "hf_transfer>=0.1.9" "h5py>=3.11" \
   "numpy>=1.26" "scipy>=1.13" "sympy>=1.13" "matplotlib>=3.9"
 
